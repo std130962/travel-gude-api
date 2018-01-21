@@ -1,0 +1,4 @@
+<?php
+/**
+ * The dependencies file
+ */
