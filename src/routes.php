@@ -19,3 +19,17 @@ $app->get('/version', function (Request $request, Response $response, array $arg
 
     return $response;
 });
+
+
+$app->get('/all', function (Request $request, Response $response, array $args) {
+    $this->logger->debug("travel-guide api '/all' route");
+
+    // Select all
+    $sql = 'SELECT * FROM `data`';
+
+    $stmt = $this->db->query($sql);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+    return $response;
+
+});
