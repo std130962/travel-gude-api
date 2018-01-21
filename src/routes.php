@@ -25,7 +25,13 @@ $app->get('/all', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/all' route");
 
     // Select all
-    $sql = 'SELECT * FROM `data`';
+    $sql = <<<SQL
+SELECT *
+FROM data
+LEFT JOIN counts ON data.id = counts.data_id;
+SQL;
+
+    //$sql = 'SELECT * FROM `data`';
 
     $stmt = $this->db->query($sql);
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
