@@ -11,9 +11,17 @@ return [
 
         // Monolog settings
         'logger' => [
-            'name' => 'slim-app',
+            'name' => 'travel-guide-app',
             'path' =>  __DIR__ . '/../logs/app.log',
             'level' => \Monolog\Logger::DEBUG,
         ],
+
+        // DB settings
+        'db' => [
+            'host' => 'localhost',
+            'dbname' => 'travel_guide',
+            'user' => 'root',
+            'pass' => ''
+        ]
     ],
 ];
