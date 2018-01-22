@@ -39,3 +39,55 @@ SQL;
     return $response;
 
 });
+
+$app->get('/sights', function (Request $request, Response $response, array $args) {
+    $this->logger->debug("travel-guide api '/sights' route");
+    
+    $sql = <<<SQL
+SELECT *
+FROM data
+LEFT JOIN counts ON data.id = counts.data_id
+WHERE category = 'Αξιοθέατα';
+SQL;
+
+    $stmt = $this->db->query($sql);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+    return $response;
+
+});
+
+$app->get('/beaches', function (Request $request, Response $response, array $args) {
+    $this->logger->debug("travel-guide api '/beaches' route");
+
+    $sql = <<<SQL
+SELECT *
+FROM data
+LEFT JOIN counts ON data.id = counts.data_id
+WHERE category = 'Παραλίες';
+SQL;
+
+    $stmt = $this->db->query($sql);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+    return $response;
+
+});
+
+$app->get('/places', function (Request $request, Response $response, array $args) {
+    $this->logger->debug("travel-guide api '/places' route");
+
+
+    $sql = <<<SQL
+SELECT *
+FROM data
+LEFT JOIN counts ON data.id = counts.data_id
+WHERE category = 'Οικισμός';
+SQL;
+
+    $stmt = $this->db->query($sql);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+    return $response;
+
+});
