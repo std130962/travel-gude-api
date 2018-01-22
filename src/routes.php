@@ -120,7 +120,7 @@ $app->get('/beaches', function (Request $request, Response $response, array $arg
     $this->logger->debug("travel-guide api '/beaches' route");
 
     $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail *
+SELECT id, title, category, intro, image, thumbnail
 FROM data
 LEFT JOIN counts ON data.id = counts.data_id
 WHERE category = 'Παραλίες';
