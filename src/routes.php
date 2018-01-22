@@ -13,6 +13,7 @@ $app->get('/', function (Request $request, Response $response, array $args) {
     return $response;
 });
 
+// Return the api version
 $app->get('/version', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/version' route");
     $response->getBody()->write("api version 0.1");
@@ -20,11 +21,12 @@ $app->get('/version', function (Request $request, Response $response, array $arg
     return $response;
 });
 
+// Return one data element full
 $app->get('/data/{id}', function (Request $request, Response $response, array $args) {
 
     $id = $args['id'];
     $this->logger->debug("travel-guide api '/data/$id' route");
-    
+
     $sql = <<<SQL
 SELECT *
 FROM data
@@ -41,6 +43,7 @@ SQL;
 
 });
 
+// Return all data
 $app->get('/all', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/all' route");
 
@@ -58,6 +61,7 @@ SQL;
 
 });
 
+// Return all and data with details
 $app->get('/all/full', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/all' route");
 
@@ -75,7 +79,7 @@ SQL;
 
 });
 
-// Sights
+// Return all sights
 $app->get('/sights', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/sights' route");
 
@@ -93,6 +97,7 @@ SQL;
 
 });
 
+// Return all sights with full details
 $app->get('/sights/full', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/sights' route");
 
@@ -110,6 +115,7 @@ SQL;
 
 });
 
+// Return all beaches
 $app->get('/beaches', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/beaches' route");
 
@@ -127,6 +133,7 @@ SQL;
 
 });
 
+// Return all beaches with full details
 $app->get('/beaches/full', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/beaches' route");
 
@@ -144,6 +151,7 @@ SQL;
 
 });
 
+// Return all places
 $app->get('/places', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/places' route");
 
@@ -162,6 +170,7 @@ SQL;
 
 });
 
+// Return all sights with full details
 $app->get('/places/full', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/places' route");
 
