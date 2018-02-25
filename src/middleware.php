@@ -6,6 +6,8 @@
 // Parameters middlware
 $pmw = function ($request, $response, $next) {
 
+    $response = $response->withHeader('Access-Control-Allow-Origin', '*');
+
     // Get all parameters
     $parameters = $request->getQueryParams();
     $this->logger->debug("parameters: ", $parameters);
