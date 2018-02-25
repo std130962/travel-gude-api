@@ -41,150 +41,159 @@ SQL;
     $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
     return $response;
 
-});
+})->add($pmw);
 
-// Return all data
+// Route /all - Return all data
 $app->get('/all', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/all' route");
 
-    // Select all
-    $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id;
-SQL;
+    $params = $request->getAttribute('params');
 
-    $stmt = $this->db->query($sql);
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
-    return $response;
-
-});
-
-// Return all and data with details
-$app->get('/all/full', function (Request $request, Response $response, array $args) {
-    $this->logger->debug("travel-guide api '/all' route");
-
-    // Select all
-    $sql = <<<SQL
+    if ($params['full']) {
+        // show details
+        $sql = <<<SQL
 SELECT *
 FROM data
-LEFT JOIN counts ON data.id = counts.data_id;
+LEFT JOIN counts ON data.id = counts.data_id
+LIMIT :limit 
+OFFSET :offset;
 SQL;
 
-    $stmt = $this->db->query($sql);
+    } else {
+        $sql = <<<SQL
+SELECT id, title, category, intro, image, thumbnail
+FROM data
+LEFT JOIN counts ON data.id = counts.data_id 
+LIMIT :limit 
+OFFSET :offset;
+SQL;
+    }
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':limit', $params['limit'], PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $params['offset'], PDO::PARAM_INT);
+    $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
     return $response;
 
-});
+})->add($pmw);
+
 
 // Return all sights
 $app->get('/sights', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/sights' route");
 
-    $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Αξιοθέατα';
-SQL;
+    $params = $request->getAttribute('params');
 
-    $stmt = $this->db->query($sql);
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
-    return $response;
-
-});
-
-// Return all sights with full details
-$app->get('/sights/full', function (Request $request, Response $response, array $args) {
-    $this->logger->debug("travel-guide api '/sights' route");
-
-    $sql = <<<SQL
+    if ($params['full']) {
+        // show details
+        $sql = <<<SQL
 SELECT *
 FROM data
 LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Αξιοθέατα';
+WHERE category = 'Αξιοθέατα'
+LIMIT :limit 
+OFFSET :offset;
 SQL;
 
-    $stmt = $this->db->query($sql);
+    } else {
+        $sql = <<<SQL
+SELECT id, title, category, intro, image, thumbnail
+FROM data
+LEFT JOIN counts ON data.id = counts.data_id
+WHERE category = 'Αξιοθέατα' 
+LIMIT :limit 
+OFFSET :offset;
+SQL;
+    }
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':limit', $params['limit'], PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $params['offset'], PDO::PARAM_INT);
+    $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
     return $response;
 
-});
+})->add($pmw);
+
+
 
 // Return all beaches
 $app->get('/beaches', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/beaches' route");
 
-    $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Παραλίες';
-SQL;
+    $params = $request->getAttribute('params');
 
-    $stmt = $this->db->query($sql);
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
-    return $response;
-
-});
-
-// Return all beaches with full details
-$app->get('/beaches/full', function (Request $request, Response $response, array $args) {
-    $this->logger->debug("travel-guide api '/beaches' route");
-
-    $sql = <<<SQL
+    if ($params['full']) {
+        // show details
+        $sql = <<<SQL
 SELECT *
 FROM data
 LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Παραλίες';
+WHERE category = 'Παραλίες'
+LIMIT :limit 
+OFFSET :offset;
 SQL;
 
-    $stmt = $this->db->query($sql);
+    } else {
+        $sql = <<<SQL
+SELECT id, title, category, intro, image, thumbnail
+FROM data
+LEFT JOIN counts ON data.id = counts.data_id
+WHERE category = 'Παραλίες'
+LIMIT :limit 
+OFFSET :offset;
+SQL;
+    }
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':limit', $params['limit'], PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $params['offset'], PDO::PARAM_INT);
+    $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
     return $response;
 
-});
+})->add($pmw);
+
 
 // Return all places
 $app->get('/places', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/places' route");
 
+    $params = $request->getAttribute('params');
 
-    $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Οικισμός';
-SQL;
-
-    $stmt = $this->db->query($sql);
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
-    return $response;
-
-});
-
-// Return all sights with full details
-$app->get('/places/full', function (Request $request, Response $response, array $args) {
-    $this->logger->debug("travel-guide api '/places' route");
-
-
-    $sql = <<<SQL
+    if ($params['full']) {
+        // show details
+        $sql = <<<SQL
 SELECT *
 FROM data
 LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Οικισμός';
+WHERE category = 'Οικισμός'
+LIMIT :limit 
+OFFSET :offset;
 SQL;
 
-    $stmt = $this->db->query($sql);
+    } else {
+        $sql = <<<SQL
+SELECT id, title, category, intro, image, thumbnail
+FROM data
+LEFT JOIN counts ON data.id = counts.data_id
+WHERE category = 'Οικισμός'
+LIMIT :limit 
+OFFSET :offset;
+SQL;
+    }
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':limit', $params['limit'], PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $params['offset'], PDO::PARAM_INT);
+    $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
     return $response;
 
-});
+
+})->add($pmw);
