@@ -4,6 +4,7 @@
  */
 
 require __DIR__ . '/../vendor/autoload.php';
+include __DIR__ . '/../src/helper.php';
 
 // Instantiate the app
 $settings = require __DIR__ . '/../src/settings.php';
