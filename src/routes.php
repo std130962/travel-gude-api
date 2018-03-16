@@ -197,3 +197,63 @@ SQL;
 
 
 })->add($pmw);
+
+
+$app->post('/register',  function (Request $request, Response $response, array $args) {
+    $headerValueString = $request->getHeaderLine('Authorization');
+
+    if ($headerValueString) {
+        $guid = base64_decode(substr($headerValueString, 6));
+    }
+
+    $parsedBody = $request->getParsedBody();
+    $guid = $parsedBody['guid'];
+    $this->logger->debug("travel-guide api '/register' route " . $guid, $parsedBody);
+
+    $sql = "SELECT guid FROM devices WHERE guid = :guid";
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':guid', $guid, PDO::PARAM_STR);
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($results) {
+        // The device exists in database
+        $this->logger->debug("Check if guid exist ", $results);
+    } else {
+        // Put new device in database
+        $sql = "INSERT INTO devices(guid,cordova,model,platform,manufacturer,isvirtual) VALUES(:guid,:cordova,:model,:platform,:manufacturer,:isvirtual)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($parsedBody);
+
+    }
+
+
+
+
+});
+
+
+
+// Return point
+$app->get('/points', function (Request $request, Response $response, array $args) {
+    $this->logger->debug("travel-guide api '/point' route");
+
+   // $params = $request->getAttribute('params');
+
+
+        $sql = <<<SQL
+SELECT *
+FROM testgeo
+SQL;
+
+
+
+    $stmt = $this->db->prepare($sql);
+
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    var_dump($results);
+    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+    return $response;
+
+
+})->add($pmw);
