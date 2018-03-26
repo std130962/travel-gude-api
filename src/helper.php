@@ -6,7 +6,8 @@
  */
 class Helper
 {
-    public static function setLimit($parameters){
+    public static function setLimit($parameters)
+    {
         if (isset($parameters['limit']) && is_numeric($parameters['limit'])) {
             return $parameters['limit'];
         } else {
@@ -15,7 +16,8 @@ class Helper
         }
     }
 
-    public static function setOffset($parameters) {
+    public static function setOffset($parameters)
+    {
         if (isset($parameters['offset']) && is_numeric($parameters['offset'])) {
             return $parameters['offset'];
         } else {
@@ -25,11 +27,37 @@ class Helper
     }
 
     //Check if full=true then show all data
-    public static function setFull($parameters) {
-        if (isset($parameters['full']) && ($parameters['full'] == 1 || $parameters['full'] == "true") ) {
+    public static function setFull($parameters)
+    {
+        if (isset($parameters['full']) && ($parameters['full'] == 1 || $parameters['full'] == "true")) {
             return 1; //true
         } else {
             return 0; //false
+        }
+    }
+
+    //Check if distance is given (also need lat, lng coords)
+    public static function setDistance($parameters)
+    {
+        if (isset($parameters['distance']) && is_numeric($parameters['distance'])
+            && isset($parameters['lng']) && isset($parameters['lat'])
+            && is_numeric($parameters['lng']) && is_numeric($parameters['lat'])
+        ) {
+            return $parameters['distance'];
+        } else {
+            return -1;
+        }
+    }
+
+    public static function createSql($parameters)
+    {
+        if (isset($parameters['distance']) && is_numeric($parameters['distance'])
+            && isset($parameters['lng']) && isset($parameters['lat'])
+            && is_numeric($parameters['lng']) && is_numeric($parameters['lat'])
+        ) {
+            return $parameters['distance'];
+        } else {
+            return -1;
         }
     }
 

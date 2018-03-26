@@ -21,16 +21,16 @@ $app->get('/version', function (Request $request, Response $response, array $arg
     return $response;
 });
 
-// Return one data element full
-$app->get('/data/{id}', function (Request $request, Response $response, array $args) {
+// Return one iten full
+$app->get('/items/{id}', function (Request $request, Response $response, array $args) {
 
     $id = $args['id'];
-    $this->logger->debug("travel-guide api '/data/$id' route");
+    $this->logger->debug("travel-guide api '/items/$id' route");
 
     $sql = <<<SQL
-SELECT *
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
+SELECT id, title, category, intro, image, thumbnail, gallery, content, likes, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
 WHERE id = :id;
 SQL;
 
@@ -38,36 +38,42 @@ SQL;
     $stmt->bindValue(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+    $response = $response->withJson($results[0], null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
     return $response;
 
 })->add($pmw);
 
-// Route /all - Return all data
+
 $app->get('/all', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/all' route");
 
     $params = $request->getAttribute('params');
 
+    $where = $params['where'];
+
     if ($params['full']) {
         // show details
         $sql = <<<SQL
-SELECT *
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
+SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE $where
 LIMIT :limit 
 OFFSET :offset;
 SQL;
 
     } else {
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id 
+SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id 
+WHERE $where 
 LIMIT :limit 
 OFFSET :offset;
 SQL;
     }
+
+    $this->logger->debug($sql);
 
     $stmt = $this->db->prepare($sql);
     $stmt->bindValue(':limit', $params['limit'], PDO::PARAM_INT);
@@ -85,24 +91,25 @@ $app->get('/sights', function (Request $request, Response $response, array $args
     $this->logger->debug("travel-guide api '/sights' route");
 
     $params = $request->getAttribute('params');
+    $where = $params['where'];
 
     if ($params['full']) {
         // show details
         $sql = <<<SQL
-SELECT *
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Αξιοθέατα'
+SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE category = 'Αξιοθέατα' AND $where 
 LIMIT :limit 
 OFFSET :offset;
 SQL;
 
     } else {
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Αξιοθέατα' 
+SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE category = 'Αξιοθέατα'  AND $where 
 LIMIT :limit 
 OFFSET :offset;
 SQL;
@@ -113,6 +120,12 @@ SQL;
     $stmt->bindValue(':offset', $params['offset'], PDO::PARAM_INT);
     $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    //$results = array_map('utf8_encode', $results);
+    $this->logger->debug($sql);
+    $this->logger->debug("results",  $results );
+
+
+    //$response = $response->withJson("test", null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
     $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
     return $response;
 
@@ -125,24 +138,25 @@ $app->get('/beaches', function (Request $request, Response $response, array $arg
     $this->logger->debug("travel-guide api '/beaches' route");
 
     $params = $request->getAttribute('params');
+    $where = $params['where'];
 
     if ($params['full']) {
         // show details
         $sql = <<<SQL
-SELECT *
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Παραλίες'
+SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE category = 'Παραλίες' AND $where
 LIMIT :limit 
 OFFSET :offset;
 SQL;
 
     } else {
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Παραλίες'
+SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE category = 'Παραλίες' AND $where
 LIMIT :limit 
 OFFSET :offset;
 SQL;
@@ -164,24 +178,65 @@ $app->get('/places', function (Request $request, Response $response, array $args
     $this->logger->debug("travel-guide api '/places' route");
 
     $params = $request->getAttribute('params');
+    $where = $params['where'];
 
     if ($params['full']) {
         // show details
         $sql = <<<SQL
-SELECT *
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Οικισμός'
+SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE category = 'Οικισμός' AND $where
 LIMIT :limit 
 OFFSET :offset;
 SQL;
 
     } else {
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail
-FROM data
-LEFT JOIN counts ON data.id = counts.data_id
-WHERE category = 'Οικισμός'
+SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE category = 'Οικισμός' AND $where
+LIMIT :limit 
+OFFSET :offset;
+SQL;
+    }
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':limit', $params['limit'], PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $params['offset'], PDO::PARAM_INT);
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+    return $response;
+
+
+})->add($pmw);
+
+// Return all info
+$app->get('/info', function (Request $request, Response $response, array $args) {
+    $this->logger->debug("travel-guide api '/info' route");
+
+    $params = $request->getAttribute('params');
+    //$where = $params['where'];
+
+    if ($params['full']) {
+        // show details
+        $sql = <<<SQL
+SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE category = 'Γενικά' 
+LIMIT :limit 
+OFFSET :offset;
+SQL;
+
+    } else {
+        $sql = <<<SQL
+SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE category = 'Γενικά' 
 LIMIT :limit 
 OFFSET :offset;
 SQL;
@@ -226,10 +281,11 @@ $app->post('/register',  function (Request $request, Response $response, array $
 
     }
 
+    $data = 'ok';
+    $response = $response->withJson($data, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+    return $response;
 
-
-
-});
+})->add($hmw);
 
 
 
