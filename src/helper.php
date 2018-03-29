@@ -61,5 +61,14 @@ class Helper
         }
     }
 
+    //todo
+    public static function fixUrls($results, $imagesUrl, $thumsUrl = 0)
+    {
+        if (!$thumsUrl) {
+            $thumsUrl = $imagesUrl . 'thumbs/';
+        }
+
+    }
+
 
 }
