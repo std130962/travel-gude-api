@@ -22,6 +22,12 @@ return [
             'dbname' => 'travel_guide',
             'user' => 'root',
             'pass' => ''
+        ],
+
+        // Images folders
+        'imagesUrl' => [
+            'images' => '/images/',
+            'thumbnails' => '/images/thumbs/'
         ]
     ],
 ];
