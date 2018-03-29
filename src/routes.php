@@ -253,6 +253,56 @@ SQL;
 
 })->add($pmw);
 
+$app->put('/favorites/{action}/{id}', function ($request, $response, $args) {
+
+    $id = $args['id'];
+    $action = $args['action'];
+
+    $this->logger->debug("Favorites route: " . $action . " - " . $id);
+
+    // Check if id is in counts table
+    $isInCounts = false;
+    $sql = "SELECT * FROM counts WHERE item_id = :id";
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':id', $id, PDO::PARAM_STR);
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($results) {
+        // The id exists in table
+        $this->logger->debug("The id exists in counts ", $results);
+        $isInCounts = true;
+    }
+
+    if ($isInCounts) {
+        if ($action == 'increase') {
+            $results[0]['likes'] = $results[0]['likes'] + 1;
+        } else if ($action == 'decrease') {
+            if ($results[0]['likes'] > 0) {
+                $results[0]['likes'] = $results[0]['likes'] - 1;
+            } else {
+                $results[0]['likes'] = 0;
+            }
+        } else {
+            // Wrong action
+        }
+        // Update ...
+        $sql = "UPDATE `counts` SET `likes` = :likes WHERE `item_id` = :id; ";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_STR);
+        $stmt->bindValue(':likes', $results[0]['likes'], PDO::PARAM_INT);
+        $stmt->execute();
+    } else {
+        // Not in counts table. Insert it
+        $sql = " INSERT INTO counts (item_id, views, likes) VALUES(:id, 0, 1)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_STR);
+        //$stmt->bindValue(':likes', $results[0]['likes'], PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    return $response;
+
+})->add($pmw);
+
 
 $app->post('/register',  function (Request $request, Response $response, array $args) {
     $headerValueString = $request->getHeaderLine('Authorization');
