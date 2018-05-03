@@ -132,7 +132,6 @@ SQL;
 })->add($pmw);
 
 
-
 // Return all beaches
 $app->get('/beaches', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/beaches' route");
@@ -333,6 +332,39 @@ $app->post('/register',  function (Request $request, Response $response, array $
 
     $data = 'ok';
     $response = $response->withJson($data, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+    return $response;
+
+})->add($hmw);
+
+
+
+$app->post('/history',  function (Request $request, Response $response, array $args) {
+
+    $parsedBody = $request->getParsedBody();
+    $this->logger->debug("travel-guide api '/history' route ", $parsedBody);
+
+    // Check values
+    if ($parsedBody['guid'] && $parsedBody['lat'] && $parsedBody['lng'] && $parsedBody['timestamp']) {
+
+        $point = sprintf("POINT(%F %F)", $parsedBody['lng'], $parsedBody['lat']);
+        $timestamp = date("Y-m-d H:i:s", $parsedBody['timestamp']);
+
+        $sql = "INSERT INTO `history` (`guid`, `coords`, `timestamp`) VALUES (:guid, GeomFromText(:point), :timestamp);";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':guid', $parsedBody['guid'], PDO::PARAM_STR);
+        $stmt->bindValue(':point', $point, PDO::PARAM_STR);
+        $stmt->bindValue(':timestamp', $timestamp, PDO::PARAM_STR);
+        $stmt->execute();
+
+        $output = 'ok';
+
+    } else {
+        // No all values given. Return 404
+        $output = 'not ok';
+    }
+
+
+    $response = $response->withJson($output, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
     return $response;
 
 })->add($hmw);
