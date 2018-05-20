@@ -18,6 +18,8 @@ $pmw = function ($request, $response, $next) {
     $params['full'] = (int) helper::setFull($parameters);
     $params['distance'] = (int) helper::setDistance($parameters);
 
+    $params['order'] = helper::setOrder($parameters);
+
     if ($params['distance'] != -1) {
         // create POINT and WHERE statement
         $point = 'POINT(' . $parameters['lng'] . ' ' . $parameters['lat'] . ')';

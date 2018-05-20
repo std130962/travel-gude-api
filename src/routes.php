@@ -92,6 +92,7 @@ $app->get('/sights', function (Request $request, Response $response, array $args
 
     $params = $request->getAttribute('params');
     $where = $params['where'];
+    $order = $params['order'];
 
     if ($params['full']) {
         // show details
@@ -100,6 +101,7 @@ SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords)
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id
 WHERE category = 'Αξιοθέατα' AND $where 
+ORDER BY $order 
 LIMIT :limit 
 OFFSET :offset;
 SQL;
@@ -110,6 +112,7 @@ SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id
 WHERE category = 'Αξιοθέατα'  AND $where 
+ORDER BY $order 
 LIMIT :limit 
 OFFSET :offset;
 SQL;
@@ -368,6 +371,8 @@ $app->post('/history',  function (Request $request, Response $response, array $a
     return $response;
 
 })->add($hmw);
+
+
 
 
 

@@ -49,6 +49,35 @@ class Helper
         }
     }
 
+    public static function setOrder($parameters)
+    {
+        $order = "ASC";
+        if (isset($parameters['order']) && ($parameters['order'] == "descending" || $parameters['order'] == "desc")) {
+            $order = "DESC";
+        } else {
+            $order = "ASC";
+        }
+
+        $orderby = "id";
+        if(isset($parameters['orderby'])) {
+            switch ($parameters['orderby']) {
+                case "distance":
+                    $orderby = "coords";
+                    break;
+                case "popular":
+                    $orderby = "likes";
+                    break;
+                case "alphabetically":
+                    $orderby = "title";
+                    break;
+            }
+        }
+
+        $orderSQL = $orderby . " " . $order;
+
+        return $orderSQL;
+    }
+
     public static function createSql($parameters)
     {
         if (isset($parameters['distance']) && is_numeric($parameters['distance'])
