@@ -6,11 +6,15 @@
 // Parameters middlware
 $pmw = function ($request, $response, $next) {
 
-    $response = $response->withHeader('Access-Control-Allow-Origin', '*');
+    $response = $response
+        ->withHeader('Access-Control-Allow-Origin', '*')
+        ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 
     // Get all parameters
     $parameters = $request->getQueryParams();
     $this->logger->debug("parameters: ", $parameters);
+
 
     $params = array();
     $params['limit'] = (int) helper::setLimit($parameters);
