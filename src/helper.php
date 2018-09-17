@@ -49,21 +49,29 @@ class Helper
         }
     }
 
+    public static function setLatLng($parameters)
+    {
+        if ( isset($parameters['lng']) && isset($parameters['lat']) )
+        {
+            $lngLat = array( (float) $parameters['lng'], (float) $parameters['lat'] );
+            return $lngLat;
+        } else {
+            $lngLat = false;
+            return $lngLat;
+        }
+    }
+
     public static function setOrder($parameters)
     {
-        $order = "ASC";
-        if (isset($parameters['order']) && ($parameters['order'] == "descending" || $parameters['order'] == "desc")) {
-            $order = "DESC";
-        } else {
+        $order = "DESC";
+        if (isset($parameters['order']) && ($parameters['order'] == "ascending" || $parameters['order'] == "asc")) {
             $order = "ASC";
         }
 
         $orderby = "id";
-        if(isset($parameters['orderby'])) {
+        if (isset($parameters['orderby'])) {
             switch ($parameters['orderby']) {
-                case "distance":
-                    $orderby = "coords";
-                    break;
+                case "popularity":
                 case "popular":
                     $orderby = "likes";
                     break;
