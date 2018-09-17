@@ -20,18 +20,15 @@ $pmw = function ($request, $response, $next) {
     $params['limit'] = (int) helper::setLimit($parameters);
     $params['offset'] = (int) helper::setOffset($parameters);
     $params['full'] = (int) helper::setFull($parameters);
-    $params['distance'] = (int) helper::setDistance($parameters);
 
-    $params['order'] = helper::setOrder($parameters);
+    $lngLat =  helper::setLatLng($parameters);
 
-    if ($params['distance'] != -1) {
-        // create POINT and WHERE statement
-        $point = 'POINT(' . $parameters['lng'] . ' ' . $parameters['lat'] . ')';
-        $params['where'] = " ST_Distance_Sphere(coords, ST_GeomFromText('$point')) < " . $params['distance']  ;
-    } else {
-        $params['where'] = ' 1 ';
+    if ( $lngLat) {
+        $params['lng'] =  $lngLat[0];
+        $params['lat'] =  $lngLat[1];
     }
 
+    $params['order'] = helper::setOrder($parameters);
 
     $this->logger->debug("params: ", $params);
 
