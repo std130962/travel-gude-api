@@ -23,7 +23,8 @@ $pmw = function ($request, $response, $next) {
 
     $lngLat =  helper::setLatLng($parameters);
 
-    if ( $lngLat) {
+
+    if ($lngLat) {
         $params['lng'] =  $lngLat[0];
         $params['lat'] =  $lngLat[1];
     }

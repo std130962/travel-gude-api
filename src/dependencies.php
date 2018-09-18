@@ -23,3 +23,9 @@ $container['db'] = function ($c) {
     return $pdo;
 };
 
+// Center container
+$container['center'] = function ($c) {
+    $center = $c['settings']['center'];
+    return $center;
+};
+
