@@ -91,21 +91,40 @@ SQL;
 
 
 
-$app->get('/nearby', function (Request $request, Response $response, array $args) {
-    $this->logger->debug("travel-guide api '/nearby' route");
+$app->get('/nearby[/{items}]', function (Request $request, Response $response, array $args) {
+
+    $this->logger->debug("travel-guide api '/nearby/{items}' route");
 
     $params = $request->getAttribute('params');
 
+    $whereAnd = "";
+
+    switch ($args['items']) {
+        case "places":
+            $whereAnd = " category = 'Οικισμός'";
+            break;
+        case "sights":
+            $whereAnd = " category = 'Αξιοθέατα'";
+            break;
+        case "beaches":
+            $whereAnd = " category = 'Παραλίες'";
+            break;
+        default:
+            $whereAnd = " 1 ";
+    }
+
+
+
     if (!isset($params['lat']) || !isset($params['lng']) ) {
-        // return 403
-        $error = "{error: no lat long}";
-        $response = $response->withJson($error, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
-        return $response;
+        $params['lat'] = $this->center['lat'];
+        $params['lng'] = $this->center['lng'];
+        $this->logger->debug("from settings " . $params['lat'] . "-" .  $params['lng']);
     }
 
     $thePoint = 'POINT(' . $params['lng'] . ' ' . $params['lat'] . ')';
-
+    $this->logger->debug("thePoint " . $thePoint);
     if ($params['full']) {
+        $this->logger->debug("full ");
         // show details
         $sql = <<<SQL
 SELECT id, title, category, intro, image, thumbnail, gallery, content, likes, X(coords) AS lng, Y(coords) AS lat, 
@@ -113,18 +132,21 @@ round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id 
 WHERE coords is not null
+AND $whereAnd 
 ORDER BY distance        
 LIMIT :limit 
 OFFSET :offset;
 SQL;
 
     } else {
+        $this->logger->debug("not full ");
         $sql = <<<SQL
 SELECT id, title, category, intro, image, thumbnail, likes,  X(coords) AS lng, Y(coords) AS lat, 
 round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id 
 WHERE coords is not null
+AND $whereAnd 
 ORDER BY distance
 LIMIT :limit 
 OFFSET :offset;
@@ -435,27 +457,4 @@ $app->post('/history',  function (Request $request, Response $response, array $a
 
 
 
-// Return point
-$app->get('/points', function (Request $request, Response $response, array $args) {
-    $this->logger->debug("travel-guide api '/point' route");
 
-   // $params = $request->getAttribute('params');
-
-
-        $sql = <<<SQL
-SELECT *
-FROM testgeo
-SQL;
-
-
-
-    $stmt = $this->db->prepare($sql);
-
-    $stmt->execute();
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    var_dump($results);
-    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
-    return $response;
-
-
-})->add($pmw);
