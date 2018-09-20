@@ -75,6 +75,7 @@ class Helper
                     $orderby = "likes";
                     break;
                 case "alphabetically":
+                case "ab":
                     $orderby = "title";
                     break;
                 case "distance";

@@ -66,7 +66,7 @@ SQL;
 
     } else {
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat
+SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat, 
 round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id 
@@ -251,6 +251,50 @@ round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id
 WHERE category = 'Παραλίες' 
+ORDER BY $order 
+LIMIT :limit 
+OFFSET :offset;
+SQL;
+    }
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':limit', $params['limit'], PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $params['offset'], PDO::PARAM_INT);
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $response = $response->withJson($results, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+    return $response;
+
+})->add($pmw);
+
+// Return all places, sights, beaches
+$app->get('/all', function (Request $request, Response $response, array $args) {
+    $this->logger->debug("travel-guide api '/all' route");
+
+    $params = $request->getAttribute('params');
+
+    $order = $params['order'];
+    $thePoint = 'POINT(' . $params['lng'] . ' ' . $params['lat'] . ')';
+
+    if ($params['full']) {
+        // show details
+        $sql = <<<SQL
+SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat, 
+round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE X(coords) IS NOT NULL 
+ORDER BY $order 
+LIMIT :limit 
+OFFSET :offset;
+SQL;
+    } else {
+        $sql = <<<SQL
+SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat, 
+round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
+FROM items
+LEFT JOIN counts ON items.id = counts.item_id
+WHERE X(coords) IS NOT NULL 
 ORDER BY $order 
 LIMIT :limit 
 OFFSET :offset;
