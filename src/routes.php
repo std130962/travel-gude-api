@@ -50,13 +50,13 @@ $app->get('/items', function (Request $request, Response $response, array $args)
     $params = $request->getAttribute('params');
 
     $order = $params['order'];
-
-    //$where = $params['where'];
+    $thePoint = 'POINT(' . $params['lng'] . ' ' . $params['lat'] . ')';
 
     if ($params['full']) {
         // show details
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail, gallery, content, likes, X(coords) AS lng, Y(coords) AS lat
+SELECT id, title, category, intro, image, thumbnail, gallery, content, likes, X(coords) AS lng, Y(coords) AS lat,
+round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id
 ORDER BY $order
@@ -67,6 +67,7 @@ SQL;
     } else {
         $sql = <<<SQL
 SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat
+round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id 
 ORDER BY $order
@@ -90,7 +91,7 @@ SQL;
 })->add($pmw);
 
 
-
+// todo remove this
 $app->get('/nearby[/{items}]', function (Request $request, Response $response, array $args) {
 
     $this->logger->debug("travel-guide api '/nearby/{items}' route");
@@ -173,13 +174,15 @@ $app->get('/sights', function (Request $request, Response $response, array $args
     $this->logger->debug("travel-guide api '/sights' route");
 
     $params = $request->getAttribute('params');
-    //$where = $params['where'];
+
     $order = $params['order'];
+    $thePoint = 'POINT(' . $params['lng'] . ' ' . $params['lat'] . ')';
 
     if ($params['full']) {
         // show details
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat
+SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat,
+round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id
 WHERE category = 'Αξιοθέατα'
@@ -190,7 +193,8 @@ SQL;
 
     } else {
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat
+SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat, 
+round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id
 WHERE category = 'Αξιοθέατα' 
@@ -224,24 +228,30 @@ $app->get('/beaches', function (Request $request, Response $response, array $arg
     $this->logger->debug("travel-guide api '/beaches' route");
 
     $params = $request->getAttribute('params');
-    //$where = $params['where'];
+
+    $order = $params['order'];
+    $thePoint = 'POINT(' . $params['lng'] . ' ' . $params['lat'] . ')';
 
     if ($params['full']) {
         // show details
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat
+SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat, 
+round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id
 WHERE category = 'Παραλίες'
+ORDER BY $order 
 LIMIT :limit 
 OFFSET :offset;
 SQL;
     } else {
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat
+SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat, 
+round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id
 WHERE category = 'Παραλίες' 
+ORDER BY $order 
 LIMIT :limit 
 OFFSET :offset;
 SQL;
@@ -257,31 +267,37 @@ SQL;
 
 })->add($pmw);
 
-
+//todo combinate categories
 // Return all places
 $app->get('/places', function (Request $request, Response $response, array $args) {
     $this->logger->debug("travel-guide api '/places' route");
 
     $params = $request->getAttribute('params');
-    //$where = $params['where'];
+
+    $order = $params['order'];
+    $thePoint = 'POINT(' . $params['lng'] . ' ' . $params['lat'] . ')';
 
     if ($params['full']) {
         // show details
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat
+SELECT id, title, category, intro, image, thumbnail, gallery, content, X(coords) AS lng, Y(coords) AS lat,
+round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id
 WHERE category = 'Οικισμός' 
+ORDER BY $order 
 LIMIT :limit 
 OFFSET :offset;
 SQL;
 
     } else {
         $sql = <<<SQL
-SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat
+SELECT id, title, category, intro, image, thumbnail, likes, X(coords) AS lng, Y(coords) AS lat, 
+round(ST_Distance_Sphere( `coords`, ST_GeomFromText('$thePoint'))) as distance
 FROM items
 LEFT JOIN counts ON items.id = counts.item_id
 WHERE category = 'Οικισμός' 
+ORDER BY $order 
 LIMIT :limit 
 OFFSET :offset;
 SQL;
