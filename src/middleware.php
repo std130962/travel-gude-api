@@ -21,9 +21,7 @@ $pmw = function ($request, $response, $next) {
     $params['offset'] = (int) helper::setOffset($parameters);
     $params['full'] = (int) helper::setFull($parameters);
 
-    $lngLat =  helper::setLatLng($parameters);
-
-
+    $lngLat =  helper::setLatLng($parameters, $this->center);
     if ($lngLat) {
         $params['lng'] =  $lngLat[0];
         $params['lat'] =  $lngLat[1];
@@ -36,7 +34,6 @@ $pmw = function ($request, $response, $next) {
     $request = $request->withAttribute('params', $params);
 
     $response = $next($request, $response);
-    //$response->getBody()->write('AFTER');
 
     return $response;
 };

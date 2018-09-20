@@ -37,6 +37,7 @@ class Helper
     }
 
     //Check if distance is given (also need lat, lng coords)
+    //TODO Remove this
     public static function setDistance($parameters)
     {
         if (isset($parameters['distance']) && is_numeric($parameters['distance'])
@@ -49,16 +50,14 @@ class Helper
         }
     }
 
-    public static function setLatLng($parameters)
+    public static function setLatLng($parameters, $center)
     {
-        if ( isset($parameters['lng']) && isset($parameters['lat']) )
-        {
-            $lngLat = array( (float) $parameters['lng'], (float) $parameters['lat'] );
-            return $lngLat;
+        if (isset($parameters['lng']) && isset($parameters['lat'])) {
+            $lngLat = array((float)$parameters['lng'], (float)$parameters['lat']);
         } else {
-            $lngLat = false;
-            return $lngLat;
+            $lngLat = array($center['lng'], $center['lat']);
         }
+        return $lngLat;
     }
 
     public static function setOrder($parameters)
@@ -78,6 +77,9 @@ class Helper
                 case "alphabetically":
                     $orderby = "title";
                     break;
+                case "distance";
+                    $orderby = "distance";
+                    break;
             }
         }
 
@@ -86,6 +88,7 @@ class Helper
         return $orderSQL;
     }
 
+    //todo remove
     public static function createSql($parameters)
     {
         if (isset($parameters['distance']) && is_numeric($parameters['distance'])
@@ -98,7 +101,7 @@ class Helper
         }
     }
 
-    //todo
+    //todo remove
     public static function fixUrls($results, $imagesUrl, $thumsUrl = 0)
     {
         if (!$thumsUrl) {
