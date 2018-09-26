@@ -450,34 +450,46 @@ $app->put('/favorites/{action}/{id}', function ($request, $response, $args) {
 
 
 $app->post('/register',  function (Request $request, Response $response, array $args) {
-    $headerValueString = $request->getHeaderLine('Authorization');
+    //$headerValueString = $request->getHeaderLine('Authorization');
 
-    if ($headerValueString) {
-        $guid = base64_decode(substr($headerValueString, 6));
-    }
+    //if ($headerValueString) {
+    //    $guid = base64_decode(substr($headerValueString, 6));
+    //    $this->logger->debug("guid from header " . $guid);
+    //}
 
     $parsedBody = $request->getParsedBody();
+
     $guid = $parsedBody['guid'];
     $this->logger->debug("travel-guide api '/register' route " . $guid, $parsedBody);
+
+    if (!$guid)  {
+        $output = array("status"=>"error", "message"=>"no guid given");
+        $response = $response->withJson($output, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT )->withStatus(403);;
+        return $response;
+    }
+
 
     $sql = "SELECT guid FROM devices WHERE guid = :guid";
     $stmt = $this->db->prepare($sql);
     $stmt->bindValue(':guid', $guid, PDO::PARAM_STR);
     $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // todo check if parameters given
     if ($results) {
         // The device exists in database
         $this->logger->debug("Check if guid exist ", $results);
+        $output = array("status"=>"success", "message"=>"guid exists on db");
     } else {
         // Put new device in database
         $sql = "INSERT INTO devices(guid,cordova,model,platform,manufacturer,isvirtual) VALUES(:guid,:cordova,:model,:platform,:manufacturer,:isvirtual)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($parsedBody);
-
+        $output = array("status"=>"success", "message"=>"guid added on db");
     }
 
-    $data = 'ok';
-    $response = $response->withJson($data, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
+
+    $response = $response->withJson($output, null, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT );
     return $response;
 
 })->add($hmw);
